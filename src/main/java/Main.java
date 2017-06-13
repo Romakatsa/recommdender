@@ -80,16 +80,16 @@ public class Main {
                         DataUtil.writeCaseToFile("(Rock)eAls_f"+factors+"r"+reg+"w"+defaultWeight+"a"+alpha+"score"+(int)(aucScore*1000),
                                 recommender.getRecommendedItemsById(totalUsers-1,20, true),artistsNames);
 
-                        DataUtil.writeCaseToFile("(Elec)eAls_f"+factors+"r"+reg+"w"+defaultWeight+"a"+alpha+"score"+(int)(aucScore*1000),
+                        DataUtil.writeCaseToFile("(Elec)eAls_f"+factors+"r"+reg+"w"+defaultWeight+"a"+(int)(100*alpha)+"score"+(int)(aucScore*1000),
                                 recommender.getRecommendedItemsById(totalUsers-2,20, true),artistsNames);
 
-                        DataUtil.writeCaseToFile("(Rap)eAls_f"+factors+"r"+reg+"w"+defaultWeight+"a"+alpha+"score"+(int)(aucScore*1000),
+                        DataUtil.writeCaseToFile("(Rap)eAls_f"+factors+"r"+reg+"w"+defaultWeight+"a"+(int)(100*alpha)+"score"+(int)(aucScore*1000),
                                 recommender.getRecommendedItemsById(totalUsers-3,20, true),artistsNames);
 
-                        DataUtil.writeCaseToFile("(Class)eAls_f"+factors+"r"+reg+"w"+defaultWeight+"a"+alpha+"score"+(int)(aucScore*1000),
+                        DataUtil.writeCaseToFile("(Class)eAls_f"+factors+"r"+reg+"w"+defaultWeight+"a"+(int)(100*alpha)+"score"+(int)(aucScore*1000),
                                 recommender.getRecommendedItemsById(totalUsers-4,20, true),artistsNames);
 
-                        DataUtil.writeCaseToFile("(Ukr)eAls_f"+factors+"r"+reg+"w"+defaultWeight+"a"+alpha+"score"+(int)(aucScore*1000),
+                        DataUtil.writeCaseToFile("(Ukr)eAls_f"+factors+"r"+reg+"w"+defaultWeight+"a"+(int)(100*alpha)+"score"+(int)(aucScore*1000),
                                 recommender.getRecommendedItemsById(totalUsers-5,20, true),artistsNames);
 
                         //DataUtil.writeCaseToFile("(Elec)eAls_f"+fact+"r"+reg+"w"+defaultWeight+"a"+alpha+"score"+(int)(aucScore*100),
