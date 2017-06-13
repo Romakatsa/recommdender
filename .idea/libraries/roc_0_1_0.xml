@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="roc-0.1.0">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/roc-0.1.0.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/lib/roc-0.1.0.jar!/doc" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/lib/roc-0.1.0.jar!/" />
+    </SOURCES>
+  </library>
+</component>
