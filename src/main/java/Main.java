@@ -21,62 +21,77 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        SparseMatrix ratingsMatrix = DataUtil.getTransposedRatingMatrix("choises0000_10000.ser",3000,10000);
+        SparseMatrix ratingsMatrix = DataUtil.getTransposedRatingMatrix("choises0000_10000_v2.ser");
         List<SparseMatrix> splittedMatrices = DataUtil.splitMatrix(ratingsMatrix, 0.1);
-        List<String> artistsNames = DataUtil.getItemsList("artists0000_10000.txt",ratingsMatrix.length()[1]);
+        List<String> artistsNames = DataUtil.getItemsList("artists0000_10000_v2.txt",ratingsMatrix.length()[1]);
 
         //Add test user
-        int[] testRockUserIds = new int[]{338,585,564,240,910,1296,2512,608,9293,3414,623,1290};    //rock
-        int[] testRapUserIds = new int[]{338,585,564,240,910,1296,2512,608,9293,3414,623,1290};
-        int[] testElecUserIds = new int[]{338,585,564,240,910,1296,2512,608,9293,3414,623,1290};
-        SparseVector newUser = new SparseVector(ratingsMatrix.length()[1]);
+        int[] testRockUserIds = new int[]{817,559,1141,1147,2130,2762,504,297,15};    //rock
+        //int[] testRapUserIds = new int[]{338,585,564,240,910,1296,2512,608,9293,3414,623,1290};
+        int[] testElecUserIds = new int[]{729,839,569,658,1596,853,652};
+        SparseVector newRockUser = new SparseVector(ratingsMatrix.length()[1]);
+        SparseVector newElecUser = new SparseVector(ratingsMatrix.length()[1]);
         for (int i: testRockUserIds) {
-            newUser.setValue(i,1);
+            newRockUser.setValue(i,1);
         }
-        splittedMatrices.get(0).setRowVector(2999, newUser);
-
+        for (int i: testElecUserIds) {
+            newElecUser.setValue(i,1);
+        }
+        int totalUsers = ratingsMatrix.length()[0];
+        splittedMatrices.get(0).setRowVector(totalUsers-1, newRockUser);
+        splittedMatrices.get(0).setRowVector(totalUsers-2, newElecUser);
 
         int factors = 20;
-        int maxIter = 6;
+        int maxIter = 7;
         double defaultWeight = 200;
         double alpha = 0.5;
         double reg = 0.05;
-        boolean showProgress = true;
-        boolean showLoss = true;
+        boolean showProgress = false;
+        boolean showLoss = false;
 
-
-        for (int fact=10; fact<150; fact += 15) {
-            for (reg = 0.01; reg<= 10; reg = reg*10) {
-                for (defaultWeight=50; defaultWeight<=300; defaultWeight += 50) {
-                    for (alpha = 0; alpha <1; alpha += 0.1) {
-                        MF_fastALS recommender = new MF_fastALS(splittedMatrices.get(0), factors, maxIter, defaultWeight, alpha, reg, showProgress, showLoss);
+        Long start = System.currentTimeMillis();
+        System.out.println("------------------");
+        for (int fact=10; fact<=100; fact += 15) {
+            for (reg = 0.01; reg<= 2; reg = reg*5) {
+                for (defaultWeight=50; defaultWeight<=300; defaultWeight += 70) {
+                    for (alpha = 0.1; alpha <1; alpha += 0.1) {
+                        MF_fastALS recommender = new MF_fastALS(splittedMatrices.get(0), fact, maxIter, defaultWeight, alpha, reg, showProgress, showLoss);
                         recommender.setWeights(1);  //uniformly
                         recommender.buildModel();
                         double aucScore = Metrics.evaluateAUC(splittedMatrices.get(0),splittedMatrices.get(1),recommender.getUserFactors(),recommender.getItemFactors(),splittedMatrices.get(1).getNonZeroRows());
                         DataUtil.writeCaseToFile("(Rock)eAls_f"+fact+"r"+reg+"w"+defaultWeight+"a"+alpha+"score"+(int)(aucScore*100),
-                                recommender.getRecommendedItemsById(2999,15, true),artistsNames);
-                        DataUtil.writeCaseToFile("(Rap)eAls_f"+fact+"r"+reg+"w"+defaultWeight+"a"+alpha+"score"+(int)(aucScore*100),
-                                recommender.getRecommendedItemsById(2998,15, true),artistsNames);
+                                recommender.getRecommendedItemsById(totalUsers-1,20, true),artistsNames);
+                        DataUtil.writeCaseToFile("(Rock)eAls_f"+fact+"r"+reg+"w"+defaultWeight+"a"+alpha+"score"+(int)(aucScore*100),
+                                recommender.getRecommendedItemsById(totalUsers-1,20, false),artistsNames);
                         DataUtil.writeCaseToFile("(Elec)eAls_f"+fact+"r"+reg+"w"+defaultWeight+"a"+alpha+"score"+(int)(aucScore*100),
-                                recommender.getRecommendedItemsById(2997,15, true),artistsNames);
-
+                                recommender.getRecommendedItemsById(totalUsers-2,20, true),artistsNames);
+                        DataUtil.writeCaseToFile("(Elec)eAls_f"+fact+"r"+reg+"w"+defaultWeight+"a"+alpha+"score"+(int)(aucScore*100),
+                                recommender.getRecommendedItemsById(totalUsers-2,20, false),artistsNames);
+                        //DataUtil.writeCaseToFile("(Elec)eAls_f"+fact+"r"+reg+"w"+defaultWeight+"a"+alpha+"score"+(int)(aucScore*100),
+                                //recommender.getRecommendedItemsById(2997,15, true),artistsNames);
+                        System.out.println("One iteration " + (System.currentTimeMillis() - start) + "millis");
+                        start = System.currentTimeMillis();
                     }
                 }
 
-                for (defaultWeight =0.01; defaultWeight<0.3; defaultWeight *= 2) {
+                for (defaultWeight =0.01; defaultWeight<0.26; defaultWeight *= 2) {
                     MF_ALS recommender2 = new MF_ALS(splittedMatrices.get(0), factors, maxIter, defaultWeight, reg, showProgress, showLoss);
                     recommender2.buildModel();
-                    double aucScore2 = Metrics.evaluateAUC(splittedMatrices.get(0),splittedMatrices.get(1),recommender2.getUserFactors(),recommender2.getItemFactors(),splittedMatrices.get(1).getNonZeroRows());
-                    MF_fastALS recommender = new MF_fastALS(splittedMatrices.get(0), factors, maxIter, defaultWeight, alpha, reg, showProgress, showLoss);
-                    recommender.setWeights(0);  //uniformly
-                    recommender.buildModel();
-                    double aucScore = Metrics.evaluateAUC(splittedMatrices.get(0),splittedMatrices.get(1),recommender.getUserFactors(),recommender.getItemFactors(),splittedMatrices.get(1).getNonZeroRows());
-
+                    double aucScore = Metrics.evaluateAUC(splittedMatrices.get(0),splittedMatrices.get(1),recommender2.getUserFactors(),recommender2.getItemFactors(),splittedMatrices.get(1).getNonZeroRows());
+                    DataUtil.writeCaseToFile("(Rock)Als_f"+fact+"r"+reg+"w"+defaultWeight+"score"+(int)(aucScore*100),
+                            recommender2.getRecommendedItemsById(totalUsers-1,20, true),artistsNames);
+                    DataUtil.writeCaseToFile("(Elec)Als_f"+fact+"r"+reg+"w"+defaultWeight+"score"+(int)(aucScore*100),
+                            recommender2.getRecommendedItemsById(totalUsers-2,20, true),artistsNames);
+                    DataUtil.writeCaseToFile("(Rock)Als_f"+fact+"r"+reg+"w"+defaultWeight+"score"+(int)(aucScore*100),
+                            recommender2.getRecommendedItemsById(totalUsers-1,20, false),artistsNames);
+                    DataUtil.writeCaseToFile("(Elec)Als_f"+fact+"r"+reg+"w"+defaultWeight+"score"+(int)(aucScore*100),
+                            recommender2.getRecommendedItemsById(totalUsers-2,20, false),artistsNames);
                 }
+                System.out.print("-");
             }
         }
 
-
+        /*
         MF_fastALS recommender = new MF_fastALS(splittedMatrices.get(0), factors, maxIter, defaultWeight, alpha, reg, showProgress, showLoss);
         recommender.setWeights(1);
         recommender.buildModel();

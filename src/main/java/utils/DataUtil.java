@@ -73,7 +73,7 @@ public class DataUtil {
 
         PrintWriter f = null;
         try {
-            f = new PrintWriter(new FileWriter(filename));
+            f = new PrintWriter(new FileWriter(filename,true));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -81,6 +81,7 @@ public class DataUtil {
         for(Integer rec: recs) {
             f.println("ID: "+rec +" Name: "+items.get(rec));
         }
+        f.println("-------------------------------------------------");
         f.close();
 
     }
