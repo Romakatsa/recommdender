@@ -31,7 +31,7 @@ public class Metrics {
         Set<Integer> nonZeroIndices;
         Set<Integer> zeroIndices;
         HashSet<Integer> allIndices = IntStream.range(0, train.length()[1]).boxed().collect(Collectors.toCollection(HashSet::new));
-        System.out.println("Total users: "+totalUsersTaken);
+        //System.out.println("Total users: "+totalUsersTaken);
         for (Integer user : usersTaken) {  //for those who where taken in trainset
             u++;
 
@@ -91,7 +91,7 @@ public class Metrics {
         Set<Integer> nonZeroIndices;
         Set<Integer> zeroIndices;
         HashSet<Integer> allIndices = IntStream.range(0, train.length()[1]).boxed().collect(Collectors.toCollection(HashSet::new));
-        System.out.println("Total users: "+totalUsersTaken);
+        //System.out.println("Total users: "+totalUsersTaken);
         for (Integer user : usersTaken) {  //for those who where taken in trainset
             u++;
 
