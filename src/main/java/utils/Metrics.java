@@ -128,9 +128,11 @@ public class Metrics {
 
             totalAucScore += analysis.rocArea();
             //analysis.rocPoints()
+            /*
             if (u%100 == 0) {
                 System.out.println("AUC evaluated for "+u+" users");
             }
+            */
         }
         return totalAucScore/totalUsersTaken;
 
