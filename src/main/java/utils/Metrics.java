@@ -43,13 +43,13 @@ public class Metrics {
 
             predictions = new double[zeroIndices.size()];
             int j = 0;
-            for (int i: zeroIndices) {
+            for (int i : zeroIndices) {
                 predictions[j] = itemPopularity[i];
                 j++;
             }
             j = 0;
             actuals = new int[zeroIndices.size()];
-            for (int i: zeroIndices) {
+            for (int i : zeroIndices) {
                 actuals[j] = (int) userTestChoises.getValue(i);
                 j++;
             }
@@ -67,12 +67,11 @@ public class Metrics {
 
             totalAucScore += analysis.rocArea();
             //analysis.rocPoints()
-            if (u%100 == 0) {
-                System.out.println("AUC evaluated for "+u+" users");
+            if (u % 100 == 0) {
+                System.out.println("AUC evaluated for " + u + " users");
             }
         }
-        return totalAucScore/totalUsersTaken;
-
+        return totalAucScore / totalUsersTaken;
 
 
     }
@@ -91,7 +90,7 @@ public class Metrics {
         Set<Integer> nonZeroIndices;
         Set<Integer> zeroIndices;
         HashSet<Integer> allIndices = IntStream.range(0, train.length()[1]).boxed().collect(Collectors.toCollection(HashSet::new));
-        //System.out.println("Total users: "+totalUsersTaken);
+        System.out.println("Total users: "+totalUsersTaken);
         for (Integer user : usersTaken) {  //for those who where taken in trainset
             u++;
 
@@ -104,13 +103,13 @@ public class Metrics {
 
             predictions = new double[zeroIndices.size()];
             int j = 0;
-            for (int i: zeroIndices) {
+            for (int i : zeroIndices) {
                 predictions[j] = (itemsFactors.column(i).inner(curUserFactors));
                 j++;
             }
             j = 0;
             actuals = new int[zeroIndices.size()];
-            for (int i: zeroIndices) {
+            for (int i : zeroIndices) {
                 actuals[j] = (int) userTestChoises.getValue(i);
                 j++;
             }
@@ -128,15 +127,29 @@ public class Metrics {
 
             totalAucScore += analysis.rocArea();
             //analysis.rocPoints()
-            /*
+
             if (u%100 == 0) {
                 System.out.println("AUC evaluated for "+u+" users");
             }
-            */
+
         }
-        return totalAucScore/totalUsersTaken;
+        return totalAucScore / totalUsersTaken;
 
 
     }
+
+
+    public static double evaluatePrecision(SparseMatrix train, SparseMatrix test, DenseMatrix usersFactors, DenseMatrix itemsFactors, Set<Integer> usersTaken, int cutOff) {
+
+
+        return 0;
+    }
+
+    public static double evaluateRecall(SparseMatrix train, SparseMatrix test, DenseMatrix usersFactors, DenseMatrix itemsFactors, Set<Integer> usersTaken, int cutOff) {
+
+
+        return 0;
+    }
+
 
 }

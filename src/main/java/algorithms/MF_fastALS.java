@@ -136,8 +136,8 @@ public class MF_fastALS {
                         min_i=i;
                     }
                 }
-                //System.out.println("Min W:" + min);
-                //System.out.println("Max W:" + max);
+                System.out.println("Min W:" + min);
+                System.out.println("Max W:" + max);
 
                 break;
 
