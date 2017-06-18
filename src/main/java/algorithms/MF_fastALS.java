@@ -6,14 +6,21 @@ import data_structure.DenseVector;
 import data_structure.DenseMatrix;
 import data_structure.Pair;
 import data_structure.SparseVector;
+
+//import es.saulvargas.balltrees.BallTree;
+//import es.saulvargas.balltrees.IPTreeSearch;
+import data_structure.balltrees.BallTree;
+import data_structure.balltrees.IPTreeSearch;
+import es.uam.eps.ir.ranksys.fast.utils.topn.IntDoubleTopN;
+import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
+//import org.ranksys.core.util.tuples.Tuple2id;
 import happy.coding.math.Randoms;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
-import java.util.HashMap;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import utils.Printer;
 
 
@@ -587,13 +594,60 @@ public class MF_fastALS {
 
     }
 
+    public ArrayList<Integer> getRecommendedItemsById(int id, int topN, ArrayList<Integer> ignore) {
+        DenseVector a = V.mult(U.row(id,false));
+        //ArrayList<Integer> ignored = trainMatrix.getRowRef(id).indexList();
+        if (ignore != null) {
+            return a.topIndicesByValue(topN, ignore);
+        }
+        else {
+            return a.topIndicesByValue(topN,null);
+        }
+
+    }
+
     public DenseMatrix getUserFactors() {
         return this.U;
     }
 
-    public DenseMatrix getItemFactors() { return this.V.transpose(); }       //need transpose?
+    public DenseMatrix getTransposedItemFactors() { return this.V.transpose(); }       //need transpose?
+    public DenseMatrix getItemFactors() { return this.V; }
 
+    public ArrayList<List<Integer>> predictAll(boolean useTree, int N) {
+        Long start = System.currentTimeMillis();
+        ArrayList<List<Integer>> predictions = new ArrayList<>(userCount);
+        List<Integer> curPredictions = null;
+        if (useTree) {
+            BallTree tree = BallTree.create(getItemFactors().getData(),20,15);
+            //userCount
+            System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", "2");
+            predictions = IntStream.range(0,userCount).parallel()
+                    .mapToObj(u-> IPTreeSearch.getTopNSingleTree(tree,getUserFactors().row(u,false).getData(),N, new IntOpenHashSet(trainMatrix.getRowRef(u).indexList())).stream()
+                            .sorted((e1,e2) -> Double.compare(e2.getDoubleValue(),e1.getDoubleValue()))         //Comparator.comparingDouble(Int2DoubleMap.Entry::getDoubleValue)
+                            .map(i->i.getKey()).collect(Collectors.toList())).collect(Collectors.toCollection(ArrayList::new));
 
+            /*
+            for (int u = 0; u < userCount; u ++) {
+                curPredictions = new ArrayList<>(N);
+                IntDoubleTopN topN = IPTreeSearch.getTopNSingleTree(tree,getUserFactors().row(u,false).getData(),N, new IntOpenHashSet(trainMatrix.getRowRef(u).indexList()));
+                topN.sort();
+                curPredictions = topN.reverseStream().map(i->i.getKey()).collect(Collectors.toList());
+                predictions.add(curPredictions);
+            }
+            */
+
+        }
+        else {
+            //userCount
+            for (int u = 0; u < 400 ; u ++) {
+                predictions.add(getRecommendedItemsById(u,N,true));
+            }
+
+        }
+
+        System.out.println("predictions created in " + (System.currentTimeMillis() - start) +" millis.");
+        return predictions;
+    }
 
     /*
     public void updateModel(int u, int i) {

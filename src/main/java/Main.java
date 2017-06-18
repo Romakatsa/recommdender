@@ -21,7 +21,9 @@ import java.util.stream.Collectors;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-
+        int passLastN = 0;
+        ArrayList<int[]> additionalUsers = null;
+        /*
         int[] testRockUserIds = new int[]{817,559,1141,1147,2130,2762,504,297,15};    //rock
         int[] testRapUserIds = new int[]{68,159,595,728,43,485,514,1974};
         int[] testElecUserIds = new int[]{729,839,569,658,1596,853,652};
@@ -30,7 +32,7 @@ public class Main {
         int[] testJazzUserIds = new int[]{3111,6837,7426,6019,1016,1109};
         int[] testJazzRockUserIds = new int[]{3111,6837,7426,1141,1147,2130,2762};
         int[] testClassRockUserIds = new int[]{263,5953,4670,6526,817,559,1141,1147,2130};
-        ArrayList<int[]> additionalUsers = new ArrayList<>();
+        additionalUsers = new ArrayList<>();
 
         additionalUsers.add(testRockUserIds);
         additionalUsers.add(testElecUserIds);
@@ -40,8 +42,8 @@ public class Main {
         additionalUsers.add(testJazzRockUserIds);
         additionalUsers.add(testClassRockUserIds);
 
-        int passLastN = additionalUsers.size();
-
+        passLastN = additionalUsers.size();
+        */
         SparseMatrix ratingsMatrix = DataUtil.getTransposedRatingMatrix("choises0000_10000_v2.ser",additionalUsers);
         List<SparseMatrix> splittedMatrices = DataUtil.splitMatrix(ratingsMatrix, 0.15, passLastN);
         List<String> artistsNames = DataUtil.getItemsList("artists0000_10000_v2.txt",ratingsMatrix.length()[1]);
@@ -70,12 +72,27 @@ public class Main {
                 for (defaultWeight=50; defaultWeight<=360; defaultWeight += 100) {
                     for (alpha = 0.15; alpha <0.7; alpha += 0.1) {
                     */
-            for (DataUtil.Settings s:settingsList) {
 
+            for (DataUtil.Settings s:settingsList) {
+                ArrayList<List<Integer>> predictions = null;
                 MF_fastALS recommender = new MF_fastALS(splittedMatrices.get(0),s.factors, s.maxIter, s.defaultWeight, s.alpha, s.reg, s.showProgress, s.showLoss);
                 recommender.setWeights(1);  //uniformly
                 recommender.buildModel();
-                double aucScore = Metrics.evaluateAUC(splittedMatrices.get(0),splittedMatrices.get(1),recommender.getUserFactors(),recommender.getItemFactors(),splittedMatrices.get(1).getNonZeroRows());
+                //double[] aucScore = Metrics.evaluateAll(splittedMatrices.get(0),splittedMatrices.get(1),recommender.getUserFactors(),recommender.getItemFactors(),splittedMatrices.get(1).getNonZeroRows(),10);
+                //System.out.println(aucScore);
+                predictions = recommender.predictAll(true,15);
+                System.out.println(predictions.get(0).get(6));
+                System.out.println(predictions.get(200).get(5));
+                System.out.println(predictions.get(300).get(6));
+                System.out.println(predictions.get(100).get(5));
+                System.out.println(predictions.get(3400).get(5));
+                predictions = recommender.predictAll(false,15);
+                System.out.println(predictions.get(0).get(6));
+                System.out.println(predictions.get(200).get(5));
+                System.out.println(predictions.get(300).get(6));
+                System.out.println(predictions.get(100).get(5));
+
+                /*
                 DataUtil.writeCaseToFile("(Rock)eAls_f"+s.factors+"r"+s.reg+"w"+s.defaultWeight+"a"+s.alpha+"score"+(int)(aucScore*1000),
                         recommender.getRecommendedItemsById(totalUsers-7,20, true),artistsNames);
 
@@ -96,6 +113,7 @@ public class Main {
 
                 DataUtil.writeCaseToFile("(ClassRock)eAls_f"+s.factors+"r"+s.reg+"w"+s.defaultWeight+"a"+(int)(100*s.alpha)+"score"+(int)(aucScore*1000),
                         recommender.getRecommendedItemsById(totalUsers-1,20, true),artistsNames);
+                */
             }
 
 

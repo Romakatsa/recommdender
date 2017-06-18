@@ -199,6 +199,8 @@ public class DataUtil {
 
         try (LineNumberReader lnr = new LineNumberReader(br)) {
             for (String line; (line = lnr.readLine()) != null; ) {
+                if (line.contains("#") || line.length() < 10)
+                    continue;
                 splitLine = line.split("\t");
                 settingsList.add(new Settings(Integer.parseInt(splitLine[0]), Integer.parseInt(splitLine[1]),
                         Double.parseDouble(splitLine[2]), Double.parseDouble(splitLine[3]),

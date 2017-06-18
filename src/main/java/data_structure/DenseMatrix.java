@@ -128,6 +128,10 @@ public class DenseMatrix implements Serializable {
 				data[i][j] = Randoms.uniform(0, range);
 	}
 
+	public double[][] getData() {
+		return data;
+	}
+
 	/**
 	 * initialize a dense matrix with small random values in (0, 1)
 	 */
