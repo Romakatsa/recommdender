@@ -22,7 +22,9 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         int passLastN = 0;
+        int testNumber = 10;
         ArrayList<int[]> additionalUsers = null;
+
         /*
         int[] testRockUserIds = new int[]{817,559,1141,1147,2130,2762,504,297,15};    //rock
         int[] testRapUserIds = new int[]{68,159,595,728,43,485,514,1974};
@@ -45,7 +47,8 @@ public class Main {
         passLastN = additionalUsers.size();
         */
         SparseMatrix ratingsMatrix = DataUtil.getTransposedRatingMatrix("choises0000_10000_v2.ser",additionalUsers);
-        List<SparseMatrix> splittedMatrices = DataUtil.splitMatrix(ratingsMatrix, 0.15, passLastN);
+        //List<SparseMatrix> splittedMatrices = DataUtil.splitMatrix(ratingsMatrix, 0.15, passLastN);
+        List<SparseMatrix> splittedMatrices = DataUtil.splitMatrixA(ratingsMatrix, 0.15, passLastN, testNumber);
         List<String> artistsNames = DataUtil.getItemsList("artists0000_10000_v2.txt",ratingsMatrix.length()[1]);
 
 
@@ -78,8 +81,33 @@ public class Main {
                 MF_fastALS recommender = new MF_fastALS(splittedMatrices.get(0),s.factors, s.maxIter, s.defaultWeight, s.alpha, s.reg, s.showProgress, s.showLoss);
                 recommender.setWeights(1);  //uniformly
                 recommender.buildModel();
-                //double[] aucScore = Metrics.evaluateAll(splittedMatrices.get(0),splittedMatrices.get(1),recommender.getUserFactors(),recommender.getItemFactors(),splittedMatrices.get(1).getNonZeroRows(),10);
+                List<double[]> scores = new ArrayList();
+
+                //double[] aucScore5 =
+                scores.add(Metrics.evaluateAll(splittedMatrices.get(0),splittedMatrices.get(1),recommender.getUserFactors(),recommender.getItemFactors(),splittedMatrices.get(1).getNonZeroRows(),5));
+                //double[] aucScore10 =
+                scores.add(Metrics.evaluateAll(splittedMatrices.get(0),splittedMatrices.get(1),recommender.getUserFactors(),recommender.getItemFactors(),splittedMatrices.get(1).getNonZeroRows(),10));
+                //double[] aucScore15
+                scores.add(Metrics.evaluateAll(splittedMatrices.get(0),splittedMatrices.get(1),recommender.getUserFactors(),recommender.getItemFactors(),splittedMatrices.get(1).getNonZeroRows(),15));
+                //double[] scoresOfTestUsers4 =
+                scores.add(Metrics.evaluateAll(splittedMatrices.get(0),splittedMatrices.get(1),recommender.getUserFactors(),recommender.getItemFactors(),splittedMatrices.get(2).getColRef(0).indexSet(),4));
+                //double[] scoresOfTestUsers7 =
+                scores.add(Metrics.evaluateAll(splittedMatrices.get(0),splittedMatrices.get(1),recommender.getUserFactors(),recommender.getItemFactors(),splittedMatrices.get(2).getColRef(0).indexSet(),7));
+                //double[] scoresOfTestUsers11 =
+                scores.add(Metrics.evaluateAll(splittedMatrices.get(0),splittedMatrices.get(1),recommender.getUserFactors(),recommender.getItemFactors(),splittedMatrices.get(2).getColRef(0).indexSet(),11));
+                //double[] scoresOfTestUsers15 =
+                scores.add(Metrics.evaluateAll(splittedMatrices.get(0),splittedMatrices.get(1),recommender.getUserFactors(),recommender.getItemFactors(),splittedMatrices.get(2).getColRef(0).indexSet(),15));
+
+                for (double[] sc: scores) {
+                    System.out.println("");
+                    for (int i =0; i< sc.length; i++) {
+                        System.out.print(sc[i] + "; ");
+                    }
+                }
+
+
                 //System.out.println(aucScore);
+                /*
                 predictions = recommender.predictAll(true,15);
                 System.out.println(predictions.get(0).get(6));
                 System.out.println(predictions.get(200).get(5));
@@ -91,7 +119,7 @@ public class Main {
                 System.out.println(predictions.get(200).get(5));
                 System.out.println(predictions.get(300).get(6));
                 System.out.println(predictions.get(100).get(5));
-
+                */
                 /*
                 DataUtil.writeCaseToFile("(Rock)eAls_f"+s.factors+"r"+s.reg+"w"+s.defaultWeight+"a"+s.alpha+"score"+(int)(aucScore*1000),
                         recommender.getRecommendedItemsById(totalUsers-7,20, true),artistsNames);

@@ -5,6 +5,7 @@ import data_structure.SparseVector;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
@@ -157,6 +158,79 @@ public class DataUtil {
 
         return samples;
     }
+
+
+    public static List<SparseMatrix> splitMatrixA(SparseMatrix ratings, double testPortion, int passLastN, int itemsNumber) {
+
+        boolean userTaken = false;
+
+        int totalUsers = ratings.length()[0];
+        int randomUsersNumber = 15;
+        List<Integer> randomUsers = new ArrayList<>(randomUsersNumber);
+        SparseMatrix randomUsersSparseMatrix = new SparseMatrix(totalUsers,1);
+        int batchSize = (int) (totalUsers/randomUsersNumber);
+        Random r = new Random(0);
+        for (int i=0; i<randomUsersNumber;i++) {
+            int randomUser = i*batchSize + r.nextInt(batchSize);
+            randomUsers.add(randomUser);
+            randomUsersSparseMatrix.setValue(randomUser,0,1);
+        }
+
+        List<SparseMatrix> samples = new ArrayList<>(2);
+        SparseMatrix trainset;
+        SparseMatrix testset;
+
+        trainset = new SparseMatrix(ratings.length()[0],ratings.length()[1]);
+        testset = new SparseMatrix(ratings.length()[0],ratings.length()[1]);
+
+
+        for (int u =0;u < ratings.length()[0] - passLastN; u++) {
+            SparseVector row = ratings.getRowRef(u);
+            List<Integer> indices = row.indexList();
+            if (randomUsers.contains(u)) {
+                Collections.shuffle(indices);
+                int trainSize = indices.size() > itemsNumber ? itemsNumber : indices.size();
+                for (int j=0; j<trainSize; j++) {
+                    trainset.setValue(u,indices.get(j),1);
+                }
+                for (int k=trainSize; k<indices.size();k++) {
+                    testset.setValue(u,indices.get(k),1);
+                }
+                testset.setRowNonZero(u);
+                userTaken = false;
+            }
+            else {
+                for (int i : row.indexList()) {
+
+                    if (Math.random() < testPortion) {
+                        testset.setValue(u, i, 1);
+                        userTaken = true;
+                    } else {
+                        trainset.setValue(u, i, 1);
+                    }
+
+                }
+                if (userTaken) {
+                    testset.setRowNonZero(u);
+                    userTaken = false;
+                }
+            }
+
+        }
+
+        for (int u = 0; u< passLastN; u++) {
+            trainset.setRowVector(ratings.length()[0] - passLastN+ u,ratings.getRowRef(ratings.length()[0] - passLastN+ u));
+        }
+
+
+
+        samples.add(trainset);
+        samples.add(testset);
+        samples.add(randomUsersSparseMatrix);
+
+        return samples;
+    }
+
 
 
     public static Object deserealizeObj(String file_name) {

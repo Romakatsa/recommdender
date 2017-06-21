@@ -15,17 +15,16 @@ import data_structure.Pair;
  * @version 1.1
  */
 public class SparseMatrix implements Serializable{
-	private static final long serialVersionUID = 8003;
 
-
-	/** The number of rows. */
+	/** The number of rows. Кількість рядків. */
 	private int M;
-	/** The number of columns. */
+	/** The number of columns. Кількість стовпців. */
 	private int N;
-	/** The array of row references. */
+	/** The array of row references. Масив посилань на рядки. */
 	private SparseVector[] rows;
-	/** The array of column references. */
+	/** The array of column references. Масив посилань на стовпці. */
 	private SparseVector[] cols;
+
 
 	private Set<Integer> nonZeroRows;
 

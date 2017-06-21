@@ -14,11 +14,12 @@ import utils.CommonUtils;
  * @version 1.1
  */
 public class SparseVector implements Serializable{
-	private static final long serialVersionUID = 8002;
-	
-	/** The length (maximum number of items to be stored) of sparse vector. */
+
+	/** The length (maximum number of items to be stored) of sparse vector.
+	 Максимальна кількість елементів для зберігання. */
 	private int N;
-	/** Data map for <index, value> pairs. */
+	/** Data map for <index, value> pairs.
+	 Структура Map для зберіганян пар ключ -> значення. */
 	private DataMap<Integer, Double> map;
 
 	/*========================================
